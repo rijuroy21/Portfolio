@@ -1,7 +1,17 @@
-from flask import Flask,render_template,redirect,request,send_from_directory
+from flask import Flask, render_template, redirect, request, send_from_directory
+from flask_mail import Mail, Message
 import sqlite3
+
 app = Flask(__name__)
-con=sqlite3.connect('database.db')
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'rijumonroy@gmail.com' 
+app.config['MAIL_PASSWORD'] = 'xpmg xden nrfl jaie' 
+
+mail = Mail(app)
 
 @app.route('/')
 def fun1():
@@ -11,15 +21,13 @@ def fun1():
 def view_resume():
     return send_from_directory(directory="static/images", path="Riju Roy cv.pdf")
 
-
 @app.route('/submit', methods=['POST'])
 def submit_form():
-  
     name = request.form['name']
     email = request.form['email']
     subject = request.form['subject']
     message = request.form['message']
-    
+
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS contact (
@@ -33,6 +41,13 @@ def submit_form():
     conn.commit()
     conn.close()
 
+    msg = Message(subject=f"New Contact Form Submission: {subject}",
+                  sender=app.config['MAIL_USERNAME'],
+                  recipients=['rijumonroy@gmail.com']) 
+    msg.body = f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
+    mail.send(msg)
+
     return redirect('/')
 
-app.run()
+if __name__ == "__main__":
+    app.run(debug=True)
