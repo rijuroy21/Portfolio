@@ -19,7 +19,7 @@ def fun1():
 
 @app.route("/view_resume")
 def view_resume():
-    return send_from_directory(directory="static/images", path="Riju Roy cv.pdf")
+    return send_from_directory(directory="static/images", path="Rijumon Roy resume .pdf")
 
 @app.route('/submit', methods=['POST'])
 def submit_form():
